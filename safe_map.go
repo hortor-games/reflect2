@@ -7,10 +7,14 @@ import (
 
 type safeMapType struct {
 	safeType
+	keyType Type
 }
 
 func (type2 *safeMapType) Key() Type {
-	return type2.safeType.cfg.Type2(type2.Type.Key())
+	if type2.keyType == nil {
+		type2.keyType = type2.safeType.cfg.Type2(type2.Type.Key())
+	}
+	return type2.keyType
 }
 
 func (type2 *safeMapType) MakeMap(cap int) interface{} {

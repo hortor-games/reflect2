@@ -8,6 +8,7 @@ import (
 type safeType struct {
 	reflect.Type
 	cfg *frozenConfig
+	elemType Type
 }
 
 func (type2 *safeType) New() interface{} {
@@ -19,7 +20,10 @@ func (type2 *safeType) UnsafeNew() unsafe.Pointer {
 }
 
 func (type2 *safeType) Elem() Type {
-	return type2.cfg.Type2(type2.Type.Elem())
+	if type2.elemType == nil {
+		 type2.elemType = type2.cfg.Type2(type2.Type.Elem())
+	}
+	return type2.elemType
 }
 
 func (type2 *safeType) Type1() reflect.Type {

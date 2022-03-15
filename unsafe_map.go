@@ -9,6 +9,7 @@ type UnsafeMapType struct {
 	unsafeType
 	pKeyRType  unsafe.Pointer
 	pElemRType unsafe.Pointer
+	keyType    Type
 }
 
 func newUnsafeMapType(cfg *frozenConfig, type1 reflect.Type) MapType {
@@ -50,7 +51,10 @@ func (type2 *UnsafeMapType) UnsafeIndirect(ptr unsafe.Pointer) interface{} {
 }
 
 func (type2 *UnsafeMapType) Key() Type {
-	return type2.cfg.Type2(type2.Type.Key())
+	if type2.keyType == nil {
+		type2.keyType = type2.cfg.Type2(type2.Type.Key())
+	}
+	return type2.keyType
 }
 
 func (type2 *UnsafeMapType) MakeMap(cap int) interface{} {
