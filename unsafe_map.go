@@ -2,14 +2,16 @@ package reflect2
 
 import (
 	"reflect"
+	"sync"
 	"unsafe"
 )
 
 type UnsafeMapType struct {
 	unsafeType
-	pKeyRType  unsafe.Pointer
-	pElemRType unsafe.Pointer
-	keyType    Type
+	pKeyRType   unsafe.Pointer
+	pElemRType  unsafe.Pointer
+	keyTypeOnce sync.Once
+	keyType     Type
 }
 
 func newUnsafeMapType(cfg *frozenConfig, type1 reflect.Type) MapType {
@@ -51,9 +53,9 @@ func (type2 *UnsafeMapType) UnsafeIndirect(ptr unsafe.Pointer) interface{} {
 }
 
 func (type2 *UnsafeMapType) Key() Type {
-	if type2.keyType == nil {
+	type2.keyTypeOnce.Do(func() {
 		type2.keyType = type2.cfg.Type2(type2.Type.Key())
-	}
+	})
 	return type2.keyType
 }
 

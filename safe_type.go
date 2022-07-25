@@ -2,13 +2,15 @@ package reflect2
 
 import (
 	"reflect"
+	"sync"
 	"unsafe"
 )
 
 type safeType struct {
 	reflect.Type
-	cfg *frozenConfig
-	elemType Type
+	cfg          *frozenConfig
+	elemTypeOnce sync.Once
+	elemType     Type
 }
 
 func (type2 *safeType) New() interface{} {
@@ -20,9 +22,9 @@ func (type2 *safeType) UnsafeNew() unsafe.Pointer {
 }
 
 func (type2 *safeType) Elem() Type {
-	if type2.elemType == nil {
-		 type2.elemType = type2.cfg.Type2(type2.Type.Elem())
-	}
+	type2.elemTypeOnce.Do(func() {
+		type2.elemType = type2.cfg.Type2(type2.Type.Elem())
+	})
 	return type2.elemType
 }
 

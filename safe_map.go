@@ -2,18 +2,20 @@ package reflect2
 
 import (
 	"reflect"
+	"sync"
 	"unsafe"
 )
 
 type safeMapType struct {
 	safeType
-	keyType Type
+	keyTypeOnce sync.Once
+	keyType     Type
 }
 
 func (type2 *safeMapType) Key() Type {
-	if type2.keyType == nil {
+	type2.keyTypeOnce.Do(func() {
 		type2.keyType = type2.safeType.cfg.Type2(type2.Type.Key())
-	}
+	})
 	return type2.keyType
 }
 
